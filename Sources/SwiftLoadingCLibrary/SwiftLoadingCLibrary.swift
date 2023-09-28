@@ -32,6 +32,16 @@ public struct SwiftLoadingCLibrary {
         let bytes: [UInt8] = Array("abc".data(using: .utf8)!)
         acceptBytes(bytes.pointer)
         
+        /// invoke function that inits data in passed parameter
+        let initParameterSym = dlsym(handle, "initParameter")
+        typealias initParameterType = @convention(c) (UnsafePointer<UInt8>) -> Void
+        let initParameter = unsafeBitCast(initParameterSym, to: initParameterType.self)
+
+        let vector = [UInt8](repeating: 0, count: 10)
+        print("vector before: \(vector)")
+        initParameter(vector)
+        print("vector after: \(vector)")
+
         dlclose(handle)
     }
 }
