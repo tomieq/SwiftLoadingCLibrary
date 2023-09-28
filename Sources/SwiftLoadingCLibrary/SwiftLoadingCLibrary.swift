@@ -11,6 +11,9 @@ public struct SwiftLoadingCLibrary {
             print("Could not load dynamic lib!")
             return
         }
+        defer {
+            dlclose(handle)
+        }
         
         /// invoke function returning integer
         let getNumberSym = dlsym(handle, "getNumber")
@@ -42,6 +45,5 @@ public struct SwiftLoadingCLibrary {
         initParameter(vector)
         print("vector after: \(vector)")
 
-        dlclose(handle)
     }
 }
