@@ -6,44 +6,50 @@ public struct SwiftLoadingCLibrary {
     public static func main() {
         let workingDir = FileManager.default.currentDirectoryPath
         print("Working in \(workingDir)")
+        let libPath = "\(workingDir)/cLib/libsample.so"
         
-        guard let handle = dlopen("\(workingDir)/cLib/libsample.so", RTLD_NOW) else {
-            print("Could not load dynamic lib!")
-            return
-        }
-        defer {
-            dlclose(handle)
-        }
-        
-        /// invoke function returning integer
-        let getNumberSym = dlsym(handle, "getNumber")
-        typealias getNumberType = @convention(c) () -> CInt
-        let getNumber = unsafeBitCast(getNumberSym, to: getNumberType.self)
-        let result = getNumber()
-        print("result: \(result)")
-        
-        ///  invoke function not returninh anything
-        let noReturnSym = dlsym(handle, "noReturn")
-        typealias noReturnType = @convention(c) () -> Void
-        let noReturn = unsafeBitCast(noReturnSym, to: noReturnType.self)
-        noReturn()
-        
-        ///  invoke function with parameter [UInt8]
-        let acceptBytesSym = dlsym(handle, "acceptBytes")
-        typealias acceptBytesType = @convention(c) (UnsafePointer<UInt8>) -> Void
-        let acceptBytes = unsafeBitCast(acceptBytesSym, to: acceptBytesType.self)
-        let bytes: [UInt8] = Array("abc".data(using: .utf8)!)
-        acceptBytes(bytes.pointer)
-        
-        /// invoke function that inits data in passed parameter
-        let initParameterSym = dlsym(handle, "initParameter")
-        typealias initParameterType = @convention(c) (UnsafePointer<UInt8>) -> Void
-        let initParameter = unsafeBitCast(initParameterSym, to: initParameterType.self)
+        do {
+            let dynamicLib = try DynamicLibrary(libPath: libPath)
+            
+            // MARK: invoke function returning integer
+            let getNumber = try dynamicLib.getFunc("getNumber", type: (@convention(c) () -> CInt).self)
+            print("result: \(getNumber())")
+            
+            
+            // MARK:  invoke function not returninh anything
+            let noReturn = try dynamicLib.getFunc("noReturn", type: (@convention(c) () -> Void).self)
+            noReturn()
 
-        let vector = [UInt8](repeating: 0, count: 10)
-        print("vector before: \(vector)")
-        initParameter(vector)
-        print("vector after: \(vector)")
+            // MARK:  invoke function with parameter [UInt8]
+            let acceptBytes = try dynamicLib.getFunc("acceptBytes", type: (@convention(c) (UnsafePointer<UInt8>) -> Void).self)
+            let bytes: [UInt8] = Array("abc".data(using: .utf8)!)
+            acceptBytes(bytes.pointer)
+            
+            
+            let initParameter = try dynamicLib.getFunc("initParameter", type: (@convention(c) (UnsafePointer<UInt8>) -> Void).self)
 
+            let vector = [UInt8](repeating: 0, count: 10)
+            print("vector before: \(vector)")
+            initParameter(vector)
+            print("vector after: \(vector)")
+            
+            // MARK: invoke function that returns pointer to C struct
+            let getStructPointer = try dynamicLib.getFunc("getStructPointer", type: (@convention(c) () -> UnsafeRawPointer).self)
+            
+            struct CStruct {
+                var data1: UInt8 = 0
+                var data2: UInt8 = 0
+                var data3: UInt8 = 0
+            }
+            let pointer = getStructPointer()
+            let objectArray = pointer.bindMemory(to: CStruct.self, capacity: 1)
+            let cstruct = objectArray[0]
+            
+            print("d1: \(cstruct.data1)")
+            print("d2: \(cstruct.data2)")
+            print("d3: \(cstruct.data3)")
+        } catch {
+            
+        }
     }
 }

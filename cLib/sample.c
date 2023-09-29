@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 // this function returns integer
 int getNumber() {
@@ -29,3 +30,24 @@ void initParameter(unsigned char variable[]) {
     printf("variable initialized with 3 bytes\n");
 }
 
+struct Triple {
+   unsigned char data1;
+   unsigned char data2;
+   unsigned char data3;
+};
+
+struct Triple* getStructPointer() {
+    printf("creating struct\n");
+    struct Triple *p1;
+    p1 = malloc(sizeof(struct Triple));
+    p1->data1 = 10;
+    p1->data2 = 155;
+    p1->data3 = 210;
+    return p1;
+}
+
+struct Triple getStruct() {
+    printf("creating struct\n");
+    struct Triple data = { 10, 123, 55};
+    return data;
+}
