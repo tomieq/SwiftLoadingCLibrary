@@ -3,18 +3,18 @@
 
 // this function returns integer
 int getNumber() {
-    printf("This function returns 5\n");
+    printf("[libC] This function returns 5\n");
     return 5;
 }
 
 // this function just executes, no parameter or return value
 void noReturn() {
-    printf("No returning function\n");
+    printf("[libC] No returning function\n");
 }
 
 // this function takes array of 8-bits as parameter
-void acceptBytes(char bytes[]) {
-    printf("received bytes: ");
+void acceptBytes(const char bytes[]) {
+    printf("[libC] received bytes: ");
     while(*bytes) {
         printf("%x ", *bytes & 0xff);
         ++bytes;
@@ -27,7 +27,7 @@ void initParameter(unsigned char variable[]) {
     variable[0] = 165;
     variable[1] = 91;
     variable[2] = 10;
-    printf("variable initialized with 3 bytes\n");
+    printf("[libC] variable initialized with 3 bytes\n");
 }
 
 struct Triple {
@@ -37,7 +37,7 @@ struct Triple {
 };
 
 struct Triple* getStructPointer() {
-    printf("creating struct\n");
+    printf("[libC] creating struct 10, 155, 210\n");
     struct Triple *p1;
     p1 = malloc(sizeof(struct Triple));
     p1->data1 = 10;
@@ -47,7 +47,49 @@ struct Triple* getStructPointer() {
 }
 
 struct Triple getStruct() {
-    printf("creating struct\n");
+    printf("[libC] creating struct 10, 123, 55\n");
     struct Triple data = { 10, 123, 55};
     return data;
+}
+
+
+typedef uint32_t tomint_t[4];
+struct s_tompair {
+    tomint_t x;
+    tomint_t y;
+};
+typedef struct s_tompair tompair_t;
+
+uint32_t calculate(uint32_t *table, tomint_t a, tompair_t *b, const uint8_t c[4]) {
+    
+    printf("Table values: ");
+    for (int i = 0; i < 12; i++) {
+        printf("%u ", table[i]);
+    }
+    printf("\n");
+
+    printf("tomint_t a values: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%u ", a[i]);
+    }
+    printf("\n");
+                       
+    printf("tompair_t b.x values: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%u ", b->x[i]);
+    }
+    printf("\n");
+                       
+    printf("tompair_t b.y values: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%u ", b->y[i]);
+    }
+    printf("\n");
+
+    printf("Const uint8_t c values: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%u ", c[i]);
+    }
+    printf("\n");
+    return 10;
 }

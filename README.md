@@ -8,6 +8,11 @@ Sample project demonstrating loading dynamic C library into Swift app
 gcc -c -fPIC sample.c -o sample.o
 gcc sample.o -shared -o libsample.so
 ```
+
+Or simply use bash:
+```
+./compile.sh
+```
 Check whether all functions are present:
 ```
 nm libsample.so
